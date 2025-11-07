@@ -1,0 +1,182 @@
+React Internship Assignment
+⚠️ AI Usage Warning
+IMPORTANT: Most submissions we receive are AI-generated. Core application logic must NOT be AI-generated. AI-generated submissions will be rejected immediately.
+
+Overview
+Build a React application with a data table that displays artwork data from the Art Institute of Chicago API with server-side pagination and persistent row selection.
+
+Required Resources
+API Endpoint: https://api.artic.edu/api/v1/artworks?page=1
+
+UI Component: PrimeReact DataTable
+
+Data Fields to Display
+title
+
+place_of_origin
+
+artist_display
+
+inscriptions
+
+date_start
+
+date_end
+
+🛠️ Technical Requirements
+1. Project Setup
+✅ Use Vite to create the React app
+
+✅ Use TypeScript (JavaScript submissions will be rejected)
+
+2. Data Table Implementation
+✅ Implement using PrimeReact DataTable (link) component
+
+✅ Fetch and display data from page 1 on initial load
+
+Use this API to fetch Data: https://api.artic.edu/api/v1/artworks?page=1
+
+✅ Display all required fields in the table
+
+
+
+
+
+3. Server-Side Pagination
+✅ Implement pagination controls
+
+✅ Fetch data from API whenever user changes page
+
+✅ Must use server-side pagination (fetch data per page, not all at once)
+
+
+
+
+
+4. Row Selection
+✅ Add checkboxes for row selection
+
+✅ Allow selecting/deselecting individual rows
+
+✅ Allow selecting/deselecting all rows on current page
+
+✅ Implement custom row selection panel
+
+An Overlay panel which allows user to custom select n number of rows through input field (see the video below for custom selection overlay panel).
+
+
+
+
+
+5. Persistent Selection
+✅ Selected/deselected rows must persist when navigating between pages
+
+❌ Do not fetch rows from other pages and store the objects or ids in a variable in order to select rows from other pages.
+
+Instead, implement a strategy to handle selection and deselection of rows. 
+
+✅ Example: If you select rows on page 1, switch to page 2, then return to page 1, those rows should still be selected
+
+Watch the video below to see Persistent Selection in action.
+
+
+
+
+
+⚠️ Checks Before Submission
+If user selects rows more than the available rows in the current page through custom Row Selection, then you must not pre fetch next (other) page rows and store them in a variable.
+
+This is to prevent prefetching of pages in advance, which can slow down the application and also may lead to out of memory issue.
+
+Instead, you must implement a strategy to handle custom row selection and deselection for rows across different page.
+
+Any submission with this issue is instantly discarded.
+
+A logic snippet is shared below that is very common in most of the submission which has this issue. Avoid implementing logic which calls multiple API or stores other page rows in a variable 
+
+// YOU MUST NOT USE THIS (OR SIMILAR) LOGIC IN YOUR PROJECT
+const handleCustomRowSelection = async (): Promise<void> => {
+    const count = parseInt(selectCount);
+    
+    if (!count || count <= 0) {
+      alert('Please enter a valid number');
+      return;
+    }
+
+    const newSelectedIds = new Set<number>();
+    const newDeselectedIds = new Set<number>();
+    let collected = 0;
+    let currentPage = 1;
+
+    while (collected < count) {
+      try {
+        const response = await fetch(
+          `https://api.artic.edu/api/v1/artworks?page=${currentPage}`
+        );
+        const data: ApiResponse = await response.json();
+        
+        const needed = count - collected;
+        const toSelect = data.data.slice(0, needed);
+        
+        toSelect.forEach(artwork => {
+          newSelectedIds.add(artwork.id);
+          collected++;
+        });
+        
+        if (toSelect.length < needed && data.data.length < rowsPerPage) {
+          break;
+        }
+        
+        currentPage++;
+        
+      } catch (error) {
+        console.error('Error fetching artworks for bulk selection:', error);
+        break;
+      }
+    }
+
+    setSelectedRowIds(newSelectedIds);
+    setDeselectedRowIds(newDeselectedIds);
+    setShowOverlay(false);
+    setSelectCount('');
+  };
+📤 Submission Guidelines
+What to Submit
+GitHub Repository URL (public repository)
+
+Deployed Application URL
+
+Where to Deploy
+✅ Netlify
+
+✅ Cloudflare
+
+✅ Any other cloud provider
+
+❌ NOT Vercel as it requires login to access the dashboard.
+
+Deadline
+Submit within 3 days of receiving the assignment
+
+❓ Frequently Asked Questions
+Q: Can I use JavaScript instead of TypeScript? 
+
+No. TypeScript is mandatory.
+
+Q: Can I use Create React App instead of Vite? 
+
+No. Vite is mandatory.
+
+Q: Why am I not getting a response about my submission? 
+
+Submissions that fail the "Checks Before Submission" requirements are automatically rejected without response.
+
+💡 Key Points to Remember
+No mass data storage - Only store current page data
+
+Always fetch from API - Even for previously visited pages
+
+Track selections separately - Store row IDs/keys of selected items, not entire row objects
+
+Test thoroughly - Navigate between pages multiple times and verify selection persistence
+
